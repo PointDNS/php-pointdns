@@ -32,7 +32,10 @@ $zones = $point->getZones( array(group => 'Clients') );
 
 ### Update a zone
 ```php
-$zone = $point->updateZone( array(zone_id => 1), array(group => 'Services') );
+$zone = $point->updateZone( 
+    array(zone_id => 1), 
+    array(group => 'Services')
+);
 ```
 
 ### Get zone
