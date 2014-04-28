@@ -8,8 +8,16 @@ class PointDNS {
     $this->timeout = $timeout;
   }
 
-  function paramsValidate() {
-    //TODO
+  function paramsValidate($params, $list) {
+    //params validate
+    foreach ($list as $param) {
+      if (!array_key_exists($param, $params)) {
+        return array(1, 'param not found: '.$param, null);
+      } elseif (!is_int($params[$param])) {
+        return array(1, 'param is not an int type: '. $params[$param], null);
+      }
+    }
+    return array(0);
   }
 
   function escape($escape, $data) {
@@ -30,38 +38,52 @@ class PointDNS {
 
   //zones
 
-  function getZones($params) {
+  function getZones($params=null) {
 
     $query = '';
     if (is_array($params) && array_key_exists('group', $params)) {
       $query = '?group=' . $params['group'];
     }
 
-    $ret = $this->call(200, 'GET', '/zones' . $query);
+    $path = '/zones' . $query;
+    $ret = $this->call(200, 'GET', $path);
     return array( $ret[0], $ret[1], $this->escape(array('list_escape'=> 'zone'), $ret[2]) );
   }
 
   function addZone($fields) {
 
-    $ret = $this->call(201, 'POST', '/zones', array('zone' => $fields));
+    $path = '/zones';
+    $ret = $this->call(201, 'POST', $path, array('zone' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone'), $ret[2]) );
   }
 
   function updateZone($params, $fields) {
 
-    $ret = $this->call(202, 'PUT', '/zones/' . $params['zone_id'], array('zone' => $fields));
+    if ( ($err = $this->paramsValidate($params, array('zone_id'))) && $err[0]) {
+      return $err;
+    }
+    $path = '/zones/' . $params['zone_id'];
+    $ret = $this->call(202, 'PUT', $path, array('zone' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone'), $ret[2]) );
   }
 
   function getZone($params) {
 
-    $ret = $this->call(200, 'GET', '/zones/' . $params['zone_id']);
+    if ( ($err = $this->paramsValidate($params, array('zone_id'))) && $err[0]) {
+      return $err;
+    }
+    $path = '/zones/' . $params['zone_id'];
+    $ret = $this->call(200, 'GET', $path);
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone'), $ret[2]) );
   }
 
   function deleteZone($params) {
 
-    $ret = $this->call(202, 'DELETE', '/zones/' . $params['zone_id']);
+    if ( ($err = $this->paramsValidate($params, array('zone_id'))) && $err[0]) {
+      return $err;
+    }
+    $path = '/zones/' . $params['zone_id'];
+    $ret = $this->call(202, 'DELETE', $path);
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone'), $ret[2]) );
   }
 
@@ -69,6 +91,9 @@ class PointDNS {
 
   function getRecords($params) {
 
+    if ( ($err = $this->paramsValidate($params, array('zone_id'))) && $err[0]) {
+      return $err;
+    }
     $path = '/zones/' . $params['zone_id'] . '/records';
     $ret = $this->call(200, 'GET', $path);
     return array( $ret[0], $ret[1], $this->escape(array('list_escape'=> 'zone_record'), $ret[2]) );
@@ -76,6 +101,9 @@ class PointDNS {
 
   function addRecord($params, $fields) {
 
+    if ( ($err = $this->paramsValidate($params, array('zone_id'))) && $err[0]) {
+      return $err;
+    }
     $path =  '/zones/' . $params['zone_id'] . '/records';
     $ret = $this->call(201, 'POST', $path, array('zone_record' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone_record'), $ret[2]) );
@@ -83,6 +111,9 @@ class PointDNS {
 
   function updateRecord($params, $fields) {
 
+    if ( ($err = $this->paramsValidate($params, array('zone_id', 'record_id'))) && $err[0]) {
+      return $err;
+    }
     $path = '/zones/' . $params['zone_id'] . '/records/' . $params['record_id'];
     $ret = $this->call(202, 'PUT', $path, array('zone_record' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone_record'), $ret[2]) );
@@ -90,6 +121,9 @@ class PointDNS {
 
   function getRecord($params) {
 
+    if ( ($err = $this->paramsValidate($params, array('zone_id', 'record_id'))) && $err[0]) {
+      return $err;
+    }
     $path =  '/zones/' . $params['zone_id'] . '/records/' . $params['record_id'];
     $ret = $this->call(200, 'GET', $path, array('zone_record' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone_record'), $ret[2]) );
@@ -97,6 +131,9 @@ class PointDNS {
 
   function deleteRecord($params) {
 
+    if ( ($err = $this->paramsValidate($params, array('zone_id', 'record_id'))) && $err[0]) {
+      return $err;
+    }
     $path =  '/zones/' . $params['zone_id'] . '/records/' . $params['record_id'];
     $ret = $this->call(202, 'DELETE', $path, array('zone_record' => $fields));
     return array( $ret[0], $ret[1], $this->escape(array('escape'=> 'zone_record'), $ret[2]) );
