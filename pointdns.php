@@ -152,7 +152,7 @@ class PointDNS {
     $process = curl_init();
 
     curl_setopt($process, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($process, CURLOPT_URL, 'https://pointhq.com' . $path);
+    curl_setopt($process, CURLOPT_URL, 'https://api.pointhq.com' . $path);
     curl_setopt($process, CURLOPT_USERPWD, $this->username . ":" . $this->apitoken);
     curl_setopt($process, CURLOPT_TIMEOUT, $this->timeout);
 
